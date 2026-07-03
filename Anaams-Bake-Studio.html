@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F7C8D0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Anaam's Bake Studio</title>
+<style>
+  :root{
+    --cream:#FFF8F0; --card:#FFFFFF; --pink:#F7C8D0; --pink-deep:#E8748F;
+    --butter:#FBE7A1; --brown:#5C4033; --brown-soft:#8A6D5C; --mint:#CDE8D5;
+    --shadow:0 4px 14px rgba(92,64,51,0.10); --radius:18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  body{background:var(--cream); color:var(--brown); font-family:'Segoe UI','Trebuchet MS',Arial,sans-serif; min-height:100vh; -webkit-text-size-adjust:100%;}
+  .hidden{display:none !important;}
+  h1,h2,h3{font-weight:700;}
+  button{font-family:inherit; cursor:pointer; border:none; touch-action:manipulation; min-height:40px;}
+  /* 16px minimum stops iPhones auto-zooming when a field is tapped */
+  input,textarea,select{font-family:inherit; font-size:16px; border:2px solid var(--pink); border-radius:12px; padding:10px 12px; background:#fff; color:var(--brown); width:100%;}
+  input:focus,textarea:focus,select:focus{outline:none; border-color:var(--pink-deep);}
+  .btn{background:var(--pink-deep); color:#fff; border-radius:14px; padding:12px 22px; font-size:16px; font-weight:600; box-shadow:var(--shadow); transition:transform .1s;}
+  .btn:active{transform:scale(.97);}
+  .btn-soft{background:var(--butter); color:var(--brown);}
+  .btn-ghost{background:transparent; color:var(--pink-deep); border:2px solid var(--pink-deep);}
+  .btn-small{padding:7px 14px; font-size:14px; border-radius:10px;}
+  .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:14px;}
+  .tag{display:inline-block; background:var(--pink); color:var(--brown); border-radius:999px; padding:3px 12px; font-size:12.5px; font-weight:600; margin:2px 4px 2px 0;}
+  .tag.halal{background:var(--mint);}
+  .tag.diet{background:var(--butter);}
+  header.appbar{background:var(--pink); padding:14px 18px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; box-shadow:var(--shadow);}
+  header.appbar h1{font-size:20px;}
+  .who{display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px;}
+  .who .face{font-size:22px;}
+  .avatar{border-radius:50%; object-fit:cover; display:inline-block; vertical-align:middle; border:2px solid var(--pink); background:#fff;}
+  main{max-width:760px; margin:0 auto; padding:18px 16px 90px;}
+  nav.tabs{position:fixed; bottom:0; left:0; right:0; background:#fff; display:flex; justify-content:space-around; padding:8px 4px calc(8px + env(safe-area-inset-bottom)); box-shadow:0 -4px 14px rgba(92,64,51,.12); z-index:10;}
+  nav.tabs button{background:none; font-size:11.5px; color:var(--brown-soft); display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 8px; border-radius:12px; font-weight:600;}
+  nav.tabs button .ico{font-size:22px;}
+  nav.tabs button.active{color:var(--pink-deep); background:var(--cream);}
+  /* login */
+  #loginView{min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;}
+  #loginView .logo{font-size:64px;}
+  #loginView h1{font-size:30px; margin:6px 0 2px;}
+  #loginView p.sub{color:var(--brown-soft); margin-bottom:26px;}
+  .profileGrid{display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:520px;}
+  .profileTile{background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 14px; width:120px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; transition:transform .12s;}
+  .profileTile:hover{transform:translateY(-3px);}
+  .profileTile .face{font-size:42px;}
+  .profileTile .nm{font-weight:700; font-size:14.5px;}
+  .profileTile .rl{font-size:11.5px; color:var(--brown-soft);}
+  .pinDots{display:flex; gap:10px; justify-content:center; margin:14px 0;}
+  .pinDots span{width:16px; height:16px; border-radius:50%; border:2px solid var(--pink-deep); display:inline-block;}
+  .pinDots span.full{background:var(--pink-deep);}
+  .pinPad{display:grid; grid-template-columns:repeat(3,72px); gap:10px; justify-content:center;}
+  .pinPad button{background:#fff; border-radius:16px; box-shadow:var(--shadow); font-size:22px; font-weight:700; color:var(--brown); padding:14px 0;}
+  .emojiPick{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:10px 0;}
+  .emojiPick button{font-size:26px; background:#fff; border-radius:12px; padding:8px 10px; box-shadow:var(--shadow); border:2px solid transparent;}
+  .emojiPick button.sel{border-color:var(--pink-deep); background:var(--pink);}
+  /* recipes */
+  .filterRow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .filterRow button{background:#fff; border:2px solid var(--pink); color:var(--brown); border-radius:999px; padding:7px 14px; font-size:13.5px; font-weight:600;}
+  .filterRow button.active{background:var(--pink-deep); border-color:var(--pink-deep); color:#fff;}
+  .recipeCard{display:flex; gap:14px; align-items:center; cursor:pointer;}
+  .recipeCard .em{font-size:40px;}
+  .recipeCard .meta{font-size:13px; color:var(--brown-soft);}
+  .stepList{list-style:none;}
+  .stepList li{padding:12px 0; border-bottom:1px dashed var(--pink); display:flex; gap:10px; align-items:flex-start;}
+  .stepList li .num{background:var(--butter); border-radius:50%; min-width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;}
+  .ingTable{width:100%; border-collapse:collapse; margin:8px 0;}
+  .ingTable td{padding:7px 4px; border-bottom:1px dashed var(--pink); font-size:14.5px;}
+  .ingTable td:last-child{text-align:right; font-weight:700; white-space:nowrap;}
+  .factRow{display:flex; flex-wrap:wrap; gap:10px; margin:10px 0;}
+  .fact{background:var(--cream); border-radius:12px; padding:8px 14px; font-size:13px; text-align:center;}
+  .fact b{display:block; font-size:15px;}
+  /* bake mode */
+  .bakeStep{background:var(--cream); border-radius:14px; padding:14px; margin-bottom:10px;}
+  .bakeStep label.chk{display:flex; gap:10px; align-items:flex-start; cursor:pointer; font-size:15px;}
+  .bakeStep input[type=checkbox]{width:22px; height:22px; accent-color:var(--pink-deep); flex-shrink:0; margin-top:2px;}
+  .bakeStep textarea{margin-top:8px; font-size:13.5px; min-height:38px;}
+  .stars{font-size:30px; cursor:pointer; user-select:none;}
+  .stars span{opacity:.3; transition:opacity .1s;}
+  .stars span.on{opacity:1;}
+  .issueChips{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0;}
+  .issueChips button{background:#fff; border:2px solid var(--pink); border-radius:999px; padding:6px 13px; font-size:13px; font-weight:600; color:var(--brown);}
+  .issueChips button.sel{background:var(--pink-deep); border-color:var(--pink-deep); color:#fff;}
+  /* doctor */
+  .docQ{background:var(--cream); border-radius:14px; padding:13px; margin-bottom:10px; display:flex; justify-content:space-between; gap:10px; align-items:center;}
+  .docQ .q{font-size:14.5px; flex:1;}
+  .ynBtns{display:flex; gap:6px;}
+  .ynBtns button{border-radius:10px; padding:6px 14px; font-weight:700; font-size:13px; background:#fff; border:2px solid var(--pink); color:var(--brown);}
+  .ynBtns button.yes.sel{background:var(--pink-deep); border-color:var(--pink-deep); color:#fff;}
+  .ynBtns button.no.sel{background:var(--brown-soft); border-color:var(--brown-soft); color:#fff;}
+  .causeCard{border-left:6px solid var(--pink-deep); background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:14px; margin-bottom:12px;}
+  .causeCard .why{font-size:14px; color:var(--brown-soft); margin:6px 0;}
+  .causeCard .fix{font-size:14px; background:var(--mint); border-radius:10px; padding:8px 12px; margin-top:6px;}
+  .reviewRow{border-top:1px dashed var(--pink); padding:10px 0; font-size:14px;}
+  .modalBack{position:fixed; inset:0; background:rgba(92,64,51,.45); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .modal{background:#fff; border-radius:var(--radius); padding:22px; width:100%; max-width:420px; max-height:85vh; overflow-y:auto;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:13.5px; font-weight:700; margin-bottom:5px;}
+  .rowBtns{display:flex; gap:10px; margin-top:14px;}
+  .rowBtns .btn{flex:1;}
+  .bigEmpty{text-align:center; color:var(--brown-soft); padding:34px 10px; font-size:15px;}
+  .bigEmpty .em{font-size:46px; display:block; margin-bottom:8px;}
+  .halalBanner{background:var(--mint); border-radius:12px; padding:10px 14px; font-size:13.5px; margin-bottom:14px;}
+  .grid2{display:block;}
+
+  /* ---- Small phones ---- */
+  @media (max-width:420px){
+    header.appbar{padding:12px 12px;}
+    header.appbar h1{font-size:16.5px;}
+    .who{font-size:13px;}
+    main{padding:14px 10px 92px;}
+    .card{padding:14px;}
+    .modal{padding:18px;}
+    .profileTile{width:100px; padding:14px 10px;}
+    .profileTile .face{font-size:36px;}
+    .recipeCard .em{font-size:34px;}
+    .fact{padding:7px 10px; font-size:12px;}
+    .fact b{font-size:14px;}
+    nav.tabs button{font-size:10.5px; padding:4px 5px;}
+    nav.tabs button .ico{font-size:21px;}
+    .pinPad{grid-template-columns:repeat(3,64px);}
+    .pinPad button{padding:12px 0; font-size:20px;}
+    .filterRow button{padding:8px 12px; font-size:13px;}
+    .stars{font-size:34px;}
+    .docQ{flex-direction:column; align-items:flex-start;}
+    .ynBtns{align-self:flex-end;}
+  }
+
+  /* ---- Tablets and laptops ---- */
+  @media (min-width:700px){
+    main{max-width:940px; padding:24px 24px 100px;}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start;}
+    .grid2 .card{margin-bottom:0;}
+    nav.tabs{max-width:560px; left:50%; transform:translateX(-50%); border-radius:20px 20px 0 0;}
+    .profileTile{width:132px;}
+    header.appbar h1{font-size:22px;}
+  }
+
+  /* ---- Big touch targets everywhere ---- */
+  @media (pointer:coarse){
+    .btn-small{padding:9px 16px;}
+    .bakeStep input[type=checkbox]{width:26px; height:26px;}
+    .stars span{padding:0 3px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginView">
+  <div class="logo">🧁</div>
+  <h1>Anaam's Bake Studio</h1>
+  <p class="sub">Family bakers only. Pick your face to come in!</p>
+  <div class="profileGrid" id="profileGrid"></div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appView" class="hidden">
+  <header class="appbar">
+    <h1>🧁 Anaam's Bake Studio</h1>
+    <div class="who" id="whoBox"></div>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs">
+    <button data-tab="home"><span class="ico">🏠</span>Home</button>
+    <button data-tab="recipes"><span class="ico">📖</span>Recipes</button>
+    <button data-tab="bakes"><span class="ico">🧾</span>Bakes</button>
+    <button data-tab="doctor"><span class="ico">🩺</span>Doctor</button>
+    <button data-tab="family"><span class="ico">👨‍👩‍👧</span>Family</button>
+  </nav>
+</div>
+
+<div id="modalHost"></div>
+
+<script>
+"use strict";
+
+/* ================= BUILT-IN RECIPES =================
+   All recipes are halal: alcohol-free vanilla only, halal-certified
+   chocolate, no gelatin anywhere. Weights in grams for accuracy. */
+const RECIPES = [
+{
+ id:"r1", emoji:"🍰", name:"Classic Vanilla Sponge Cake", diet:["classic"],
+ difficulty:"Easy", time:"25 min bake", serves:12, kcal:320, temp:"180°C (fan 160°C)",
+ ingredients:[["Soft butter","200 g"],["Caster sugar","200 g"],["Eggs (medium)","4 (about 200 g)"],["Plain flour","200 g"],["Baking powder","2 tsp (8 g)"],["Milk","30 ml (2 tbsp)"],["Alcohol-free vanilla","1 tsp"]],
+ steps:[
+  "Heat the oven to 180°C. Butter and line two 20 cm round tins.",
+  "Beat the butter and sugar for 4 full minutes until pale and fluffy. Set a timer, do not guess.",
+  "Add the eggs one at a time, beating 30 seconds after each one.",
+  "Sift the flour and baking powder over the bowl. Fold gently with a spatula until you see no dry flour, then STOP mixing.",
+  "Fold in the milk and vanilla with 3 or 4 gentle turns.",
+  "Divide evenly between the tins (weigh the tins to be exact!) and smooth the tops.",
+  "Bake 22 to 25 minutes. No opening the door before 20 minutes. A skewer poked in the middle should come out clean.",
+  "Cool in the tins for 10 minutes, then turn out onto a rack until fully cold before filling."],
+ halalNote:"Use alcohol-free vanilla (vanilla powder or halal-certified essence). Everything else is naturally halal.",
+ tip:"Fill with jam and whipped cream for a classic Victoria sponge."
+},
+{
+ id:"r2", emoji:"🍪", name:"Chocolate Chip Cookies", diet:["classic"],
+ difficulty:"Easy", time:"12 min bake", serves:16, kcal:180, temp:"180°C (fan 160°C)",
+ ingredients:[["Soft butter","115 g"],["Soft brown sugar","100 g"],["White sugar","50 g"],["Egg (medium)","1"],["Alcohol-free vanilla","1 tsp"],["Plain flour","190 g"],["Baking soda","1/2 tsp"],["Salt","1/4 tsp"],["Halal-certified chocolate chips","150 g"]],
+ steps:[
+  "Beat the butter with both sugars for 2 minutes until creamy.",
+  "Beat in the egg and vanilla until smooth.",
+  "Mix the flour, baking soda and salt in a separate bowl, then stir into the wet mix until just combined.",
+  "Fold in the chocolate chips.",
+  "Chill the dough in the fridge for 30 minutes. This step stops flat, greasy cookies. Do not skip it.",
+  "Heat the oven to 180°C. Roll 40 g balls of dough and space them 5 cm apart on a lined tray.",
+  "Bake 10 to 12 minutes until the edges are golden but the middles still look slightly soft.",
+  "Leave on the tray 5 minutes to finish setting, then move to a rack."],
+ halalNote:"Check the chocolate chips carry a halal certification mark. Use alcohol-free vanilla.",
+ tip:"Slightly underbaked in the middle means chewy cookies tomorrow."
+},
+{
+ id:"r3", emoji:"🍫", name:"Fudgy Chocolate Brownies", diet:["classic"],
+ difficulty:"Medium", time:"28 min bake", serves:16, kcal:210, temp:"175°C (fan 155°C)",
+ ingredients:[["Butter","150 g"],["Halal-certified dark chocolate","150 g"],["Caster sugar","200 g"],["Eggs (medium)","3"],["Plain flour","90 g"],["Cocoa powder","30 g"],["Salt","1/4 tsp"]],
+ steps:[
+  "Heat the oven to 175°C. Line a 20 cm square tin with baking paper.",
+  "Melt the butter and chocolate together gently (short bursts in the microwave, stirring between). Let it cool 5 minutes.",
+  "Whisk the eggs and sugar hard for 2 minutes until slightly thick and pale.",
+  "Pour in the cooled chocolate mix and whisk until glossy.",
+  "Sift in the flour, cocoa and salt. Fold gently until just combined.",
+  "Pour into the tin and bake 25 to 30 minutes. The middle should still wobble very slightly.",
+  "Cool COMPLETELY in the tin before cutting. Warm brownies fall apart, cold ones cut clean."],
+ halalNote:"Use halal-certified dark chocolate (around 55 to 70 percent cocoa).",
+ tip:"A shiny cracked top means you whisked the eggs and sugar enough. Well done!"
+},
+{
+ id:"r4", emoji:"🍌", name:"Banana Bread", diet:["classic"],
+ difficulty:"Easy", time:"55 min bake", serves:12, kcal:220, temp:"175°C (fan 155°C)",
+ ingredients:[["Very ripe bananas (peeled)","300 g (about 3)"],["Melted butter","100 g"],["Soft brown sugar","120 g"],["Eggs (medium)","2"],["Plain flour","220 g"],["Baking soda","1 tsp"],["Salt","1/4 tsp"],["Cinnamon","1/2 tsp"]],
+ steps:[
+  "Heat the oven to 175°C. Line a 2 lb (900 g) loaf tin.",
+  "Mash the bananas until nearly smooth. Weigh them, banana size lies!",
+  "Whisk in the melted butter, sugar and eggs.",
+  "Mix the flour, baking soda, salt and cinnamon, then fold into the banana mix until just combined. Lumps are fine, overmixing is not.",
+  "Pour into the tin and bake 55 to 60 minutes. Cover loosely with foil after 40 minutes if it browns too fast.",
+  "A skewer in the centre must come out clean. If not, give it 5 more minutes and test again.",
+  "Cool in the tin 15 minutes, then on a rack."],
+ halalNote:"Naturally halal, nothing to swap.",
+ tip:"Brown-spotted bananas nobody wants to eat are PERFECT for this."
+},
+{
+ id:"r5", emoji:"🧁", name:"Vanilla Cupcakes with Buttercream", diet:["classic"],
+ difficulty:"Easy", time:"18 min bake", serves:12, kcal:280, temp:"175°C (fan 155°C)",
+ ingredients:[["Soft butter","115 g"],["Caster sugar","130 g"],["Eggs (medium)","2"],["Plain flour","150 g"],["Baking powder","1.5 tsp (6 g)"],["Milk","60 ml"],["Alcohol-free vanilla","1 tsp"],["FOR ICING: soft butter","115 g"],["FOR ICING: icing sugar","220 g"],["FOR ICING: milk","1 tbsp"]],
+ steps:[
+  "Heat the oven to 175°C. Put 12 paper cases in a muffin tin.",
+  "Beat the butter and sugar 3 minutes until pale and fluffy.",
+  "Beat in the eggs one at a time, then the vanilla.",
+  "Fold in the flour and baking powder gently, then the milk, until just smooth.",
+  "Fill each case two-thirds full (about 45 g each, weigh the first few to learn the amount).",
+  "Bake 18 to 20 minutes until the tops spring back when lightly pressed.",
+  "Cool fully. Warm cupcakes melt icing into a puddle.",
+  "For the icing: beat the butter 2 minutes, add icing sugar in two goes, beat 3 more minutes, loosen with milk. Pipe or swirl on."],
+ halalNote:"Use alcohol-free vanilla. Add colour with halal-certified food gels.",
+ tip:"An ice cream scoop fills cases evenly, and even cupcakes bake evenly."
+},
+{
+ id:"r6", emoji:"🎂", name:"Eggless Chocolate Cake", diet:["eggless"],
+ difficulty:"Easy", time:"32 min bake", serves:12, kcal:250, temp:"180°C (fan 160°C)",
+ ingredients:[["Plain flour","190 g"],["Cocoa powder","40 g"],["Caster sugar","200 g"],["Baking soda","1 tsp"],["Salt","1/4 tsp"],["Plain yogurt","240 g"],["Neutral oil","80 ml"],["Warm water","120 ml"],["Alcohol-free vanilla","1 tsp"],["White vinegar","1 tbsp"]],
+ steps:[
+  "Heat the oven to 180°C. Line a 20 cm round tin.",
+  "Whisk the flour, cocoa, sugar, baking soda and salt in a big bowl.",
+  "In another bowl whisk the yogurt, oil, warm water and vanilla.",
+  "Pour wet into dry and whisk until just smooth.",
+  "Add the vinegar last and fold it in quickly. It reacts with the baking soda to lift the cake, so get it in the oven fast.",
+  "Bake 30 to 35 minutes until a skewer comes out clean.",
+  "Cool 15 minutes in the tin, then fully on a rack."],
+ halalNote:"No eggs, no alcohol vanilla, fully halal. The yogurt plus vinegar does the job eggs normally do.",
+ tip:"This is the recipe to bake for friends who cannot eat eggs. Nobody can tell."
+},
+{
+ id:"r7", emoji:"🥮", name:"Eggless Butter Cookies", diet:["eggless"],
+ difficulty:"Easy", time:"13 min bake", serves:20, kcal:110, temp:"170°C (fan 150°C)",
+ ingredients:[["Soft butter","150 g"],["Icing sugar","75 g"],["Plain flour","200 g"],["Cornflour","25 g"],["Milk","2 tbsp"],["Alcohol-free vanilla","1 tsp"]],
+ steps:[
+  "Beat the butter and icing sugar 2 minutes until creamy.",
+  "Add the vanilla and milk and beat briefly.",
+  "Fold in the flour and cornflour to make a soft dough. Do not knead it.",
+  "Roll into 20 g balls, place on a lined tray and press each gently with a fork.",
+  "Chill the tray 20 minutes while the oven heats to 170°C.",
+  "Bake 12 to 14 minutes until the edges turn lightly golden, not brown.",
+  "Cool on the tray 5 minutes. They firm up as they cool."],
+ halalNote:"Naturally halal and egg-free.",
+ tip:"Cornflour is the secret to the melt-in-the-mouth feel."
+},
+{
+ id:"r8", emoji:"🥜", name:"3-Ingredient Peanut Butter Cookies (Gluten-Free)", diet:["gluten-free"],
+ difficulty:"Super easy", time:"11 min bake", serves:16, kcal:150, temp:"175°C (fan 155°C)",
+ ingredients:[["Smooth peanut butter","250 g"],["Caster sugar","150 g"],["Egg (medium)","1"],["Baking soda (optional, for lift)","1/2 tsp"],["Salt (if peanut butter is unsalted)","1 pinch"]],
+ steps:[
+  "Heat the oven to 175°C and line a tray.",
+  "Mix everything in one bowl into a thick dough.",
+  "Roll 25 g balls, space them out, and press a criss-cross on top with a fork.",
+  "Bake 10 to 12 minutes until the edges look set. The middles will feel soft, that is correct.",
+  "Leave on the tray 10 full minutes. They are fragile warm and perfect cold."],
+ halalNote:"Naturally halal and naturally gluten-free, no flour at all.",
+ tip:"Check the peanut butter label: peanuts and salt only is best. Sweetened spreads make them too sweet."
+},
+{
+ id:"r9", emoji:"🍩", name:"Almond Flour Brownies (Gluten-Free)", diet:["gluten-free"],
+ difficulty:"Medium", time:"24 min bake", serves:16, kcal:190, temp:"170°C (fan 150°C)",
+ ingredients:[["Halal-certified dark chocolate","150 g"],["Butter","100 g"],["Caster sugar","150 g"],["Eggs (medium)","3"],["Almond flour (ground almonds)","100 g"],["Cocoa powder","20 g"],["Salt","1/4 tsp"]],
+ steps:[
+  "Heat the oven to 170°C. Line a 20 cm square tin.",
+  "Melt the chocolate and butter together gently. Cool 5 minutes.",
+  "Whisk the eggs and sugar 2 minutes until pale.",
+  "Whisk in the chocolate mix, then fold in the almond flour, cocoa and salt.",
+  "Bake 22 to 25 minutes until the top is set with a slight wobble underneath.",
+  "Cool completely in the tin before cutting into 16 squares."],
+ halalNote:"Halal-certified chocolate, no flour, no gluten.",
+ tip:"Almond flour keeps these extra moist. They taste even better on day two."
+},
+{
+ id:"r10", emoji:"🌱", name:"Vegan Chocolate Cake", diet:["vegan","eggless"],
+ difficulty:"Easy", time:"32 min bake", serves:12, kcal:210, temp:"180°C (fan 160°C)",
+ ingredients:[["Plain flour","190 g"],["Caster sugar","180 g"],["Cocoa powder","30 g"],["Baking soda","1 tsp"],["Salt","1/2 tsp"],["Neutral oil","75 ml"],["White vinegar","1 tbsp"],["Alcohol-free vanilla","1 tsp"],["Cold water","240 ml"]],
+ steps:[
+  "Heat the oven to 180°C. Line a 20 cm round tin.",
+  "Whisk the flour, sugar, cocoa, baking soda and salt straight in the tin bowl.",
+  "Make three holes in the dry mix. Pour oil in one, vinegar in another, vanilla in the third. Old bakers call this a wacky cake!",
+  "Pour the water over everything and whisk until just smooth.",
+  "Bake 30 to 35 minutes until a skewer comes out clean.",
+  "Cool fully. Dust with icing sugar or ice with a dairy-free chocolate icing."],
+ halalNote:"No animal products at all, fully halal and vegan.",
+ tip:"This recipe was invented when eggs and butter were scarce. Chemistry does all the work."
+},
+{
+ id:"r11", emoji:"🧺", name:"Vegan Banana Muffins", diet:["vegan","eggless"],
+ difficulty:"Easy", time:"21 min bake", serves:12, kcal:190, temp:"180°C (fan 160°C)",
+ ingredients:[["Very ripe bananas (peeled)","300 g (about 3)"],["Neutral oil","75 ml"],["Soft brown sugar","100 g"],["Plant milk (oat or soy)","60 ml"],["Plain flour","220 g"],["Baking powder","2 tsp (8 g)"],["Cinnamon","1 tsp"],["Salt","1/4 tsp"]],
+ steps:[
+  "Heat the oven to 180°C. Line a 12-hole muffin tin with cases.",
+  "Mash the bananas, then whisk in the oil, sugar and plant milk.",
+  "Mix the flour, baking powder, cinnamon and salt, then fold in until JUST combined. Ten folds maximum.",
+  "Divide between the cases (about 70 g each).",
+  "Bake 20 to 22 minutes until risen and golden. A skewer should come out clean.",
+  "Cool on a rack. Muffins left in the hot tin go soggy underneath."],
+ halalNote:"Fully plant-based and halal.",
+ tip:"Overmixed muffins get tough with weird tunnels inside. Gentle folding is the whole game."
+},
+{
+ id:"r12", emoji:"🌾", name:"Date-Sweetened Oat Cookies (Lower Sugar)", diet:["lower-sugar"],
+ difficulty:"Easy", time:"13 min bake", serves:18, kcal:130, temp:"175°C (fan 155°C)",
+ ingredients:[["Soft dates (pitted, chopped)","150 g"],["Boiling water","3 tbsp"],["Soft butter","100 g"],["Honey","40 g"],["Egg (medium)","1"],["Rolled oats","150 g"],["Plain flour","100 g"],["Baking soda","1/2 tsp"],["Cinnamon","1 tsp"]],
+ steps:[
+  "Soak the chopped dates in the boiling water for 10 minutes, then mash into a rough paste.",
+  "Heat the oven to 175°C and line a tray.",
+  "Beat the butter, honey and date paste together until combined.",
+  "Beat in the egg, then stir in the oats, flour, baking soda and cinnamon.",
+  "Drop 30 g mounds on the tray and flatten slightly.",
+  "Bake 12 to 14 minutes until golden at the edges.",
+  "Cool on the tray 5 minutes, then on a rack."],
+ halalNote:"Sweetened mostly with dates, which feels right for an Omani kitchen. Fully halal.",
+ tip:"Dates bring their own caramel flavour, so these need much less sugar than normal cookies."
+}
+];
+
+/* ================= BAKE DOCTOR KNOWLEDGE ================= */
+const DOCTOR = {
+ cake:{label:"Cake or Cupcake", emoji:"🍰", symptoms:{
+  dense:{label:"Dense and heavy", checks:[
+   {q:"Did you keep mixing after the flour went in?", cause:"Overmixed batter", why:"Flour contains gluten. Every extra stir after flour goes in builds more stretchy gluten, and stretchy batter bakes heavy like bread instead of light like cake.", fix:"Fold gently and stop the moment you cannot see dry flour."},
+   {q:"Was the butter-sugar mix beaten less than 3 minutes, or was the butter melted?", cause:"Not enough air creamed in", why:"Creaming whips tiny air bubbles into the butter. Those bubbles are what grow in the oven and lift the cake. No bubbles means no lift.", fix:"Soft (never melted) butter, beat 3 to 5 minutes until pale and fluffy. Use a timer."},
+   {q:"Is your baking powder or soda more than 6 months old?", cause:"Tired raising agent", why:"Raising agents make the gas that lifts a cake, and they slowly lose power in the cupboard.", fix:"Drop a spoonful in hot water. Strong fizz means good. Weak fizz means buy new."},
+   {q:"Did you measure flour with cups or by scooping instead of weighing?", cause:"Too much flour", why:"A scooped cup packs in up to 25 percent extra flour. Extra flour drinks up the liquid and makes a heavy, dry crumb.", fix:"Always weigh flour in grams on a scale."}
+  ]},
+  sunken:{label:"Sunk in the middle", checks:[
+   {q:"Did you open the oven door in the first 20 minutes?", cause:"Heat escaped mid-rise", why:"The middle of the cake sets last. Cold air makes the risen bubbles collapse before the structure is strong enough to hold them.", fix:"No peeking until at least three quarters of the bake time is done."},
+   {q:"Did the skewer come out with wet crumbs when you took it out?", cause:"Underbaked", why:"A cake that leaves the oven before the centre is set has no strength in the middle, so it sinks as it cools.", fix:"Test with a skewer in the CENTRE. Wet means 5 more minutes, then test again."},
+   {q:"Did you add extra baking powder to make it rise more?", cause:"Too much raising agent", why:"Extra raising agent makes bubbles grow too big too fast. Big bubbles pop, and the cake falls. More is not better.", fix:"Stick to the exact amount. Level the teaspoon with a knife."}
+  ]},
+  dry:{label:"Dry and crumbly", checks:[
+   {q:"Did it bake longer than the recipe said, or does your oven run hot?", cause:"Overbaked", why:"Every extra minute in the oven steams more moisture out of the crumb.", fix:"Set a timer for 5 minutes BEFORE the earliest time and start skewer-testing then. An oven thermometer tells you the true temperature."},
+   {q:"Did you weigh the flour, or guess with cups?", cause:"Too much flour", why:"Extra flour soaks up the liquid that was meant to keep the crumb moist.", fix:"Weigh everything in grams, every time."}
+  ]},
+  norise:{label:"Did not rise", checks:[
+   {q:"Could you have forgotten the baking powder or soda?", cause:"Missing raising agent", why:"No raising agent, no gas, no rise. It happens to every baker at least once!", fix:"Line up every ingredient on the counter before you start, and put each away as you use it."},
+   {q:"Did the batter sit around before going into the oven?", cause:"Raising agent fired too early", why:"Baking powder starts working the moment it gets wet. If the batter waits, the gas escapes before the oven can set the bubbles.", fix:"Heat the oven fully BEFORE mixing, and get the batter in fast."},
+   {q:"Is your raising agent old?", cause:"Tired raising agent", why:"Raising agents lose strength over months in the cupboard.", fix:"Test in hot water: strong fizz means alive."}
+  ]}
+ }},
+ cookies:{label:"Cookies", emoji:"🍪", symptoms:{
+  flat:{label:"Spread flat and thin", checks:[
+   {q:"Did you skip chilling the dough?", cause:"Warm dough", why:"Warm butter melts instantly in the oven, so the dough puddles outward before the flour can set the shape.", fix:"Chill the dough at least 30 minutes. In Muscat heat, make it 45."},
+   {q:"Was the butter very soft or partly melted when you started?", cause:"Butter too warm", why:"Butter should be bendy, not shiny. Melted butter cannot hold air or shape.", fix:"Butter is right when a finger pressed in leaves a dent but the block still holds its shape."},
+   {q:"Did you weigh the flour?", cause:"Too little flour", why:"Not enough flour means not enough structure to hold the melting dough in shape.", fix:"Weigh in grams. Cups lie."}
+  ]},
+  hard:{label:"Hard and dry", checks:[
+   {q:"Did they bake until fully browned all over?", cause:"Overbaked", why:"Cookies finish cooking on the hot tray AFTER leaving the oven. Fully browned in the oven means rock hard once cool.", fix:"Take them out when edges are golden but the middles still look slightly underdone."},
+   {q:"Extra flour, or scooped cups?", cause:"Too much flour", why:"Extra flour makes a stiff, dry dough.", fix:"Weigh it."}
+  ]},
+  cakey:{label:"Puffy and cakey, not chewy", checks:[
+   {q:"Did you beat the butter and sugar for a long time?", cause:"Too much air creamed in", why:"Lots of creaming makes cookies rise like little cakes. Chewy cookies want less air.", fix:"For chewy cookies, mix butter and sugar just until combined, about 1 minute."},
+   {q:"Did you use more egg than the recipe said?", cause:"Too much egg", why:"Egg adds structure and puff. Extra egg pushes cookies toward cake.", fix:"Medium egg means about 50 g without shell. Weigh if unsure."}
+  ]},
+  burnt:{label:"Burnt bottoms", checks:[
+   {q:"Is your baking tray dark coloured?", cause:"Dark tray absorbs heat", why:"Dark metal soaks up heat and fries the cookie bottoms before the tops are done.", fix:"Use a light tray, or double up two trays, or add a layer of baking paper."},
+   {q:"Was the tray on the bottom shelf?", cause:"Too close to the heat", why:"The bottom of most ovens is the hottest spot.", fix:"Bake cookies on the middle shelf."}
+  ]}
+ }},
+ brownies:{label:"Brownies", emoji:"🍫", symptoms:{
+  cakey:{label:"Cakey, not fudgy", checks:[
+   {q:"Did you whisk hard after the flour went in?", cause:"Too much air after flour", why:"Fudgy brownies want a dense batter. Whisking in air after the flour turns them into chocolate cake.", fix:"Whisk eggs and sugar hard BEFORE, fold gently AFTER the flour."},
+   {q:"Did they bake with no wobble left at all?", cause:"Overbaked", why:"Brownies keep cooking in the hot tin. Fully set in the oven means dry and cakey once cool.", fix:"Pull them when the centre still has a slight wobble."}
+  ]},
+  raw:{label:"Raw and gooey in the middle", checks:[
+   {q:"Did you cut them while still warm?", cause:"Cut too early", why:"Brownies finish setting as they cool. A warm brownie is always gooey, that is not the same as raw.", fix:"Cool completely in the tin, 2 hours minimum. Patience is an ingredient."},
+   {q:"Was the tin smaller than the recipe said?", cause:"Batter too deep", why:"A smaller tin makes deeper batter, and the middle cannot cook before the edges burn.", fix:"Use the exact tin size, or bake longer at a slightly lower heat."}
+  ]},
+  dry:{label:"Dry all through", checks:[
+   {q:"Did they bake past the recipe time?", cause:"Overbaked", why:"The line between fudgy and dry is about 5 minutes wide.", fix:"Start testing at the earliest time. Slight wobble in the centre means done."}
+  ]}
+ }},
+ muffins:{label:"Muffins or Loaf", emoji:"🧺", symptoms:{
+  gummy:{label:"Gummy or wet inside", checks:[
+   {q:"Did the skewer come out clean before you took it out?", cause:"Underbaked", why:"Banana and fruit batters are heavy with moisture and need full baking time.", fix:"Skewer the CENTRE. Any wet batter means more time. Cover with foil if the top browns first."},
+   {q:"Did you use extra banana or fruit beyond the weight given?", cause:"Too much moisture", why:"Extra fruit means extra water that the flour cannot absorb.", fix:"Weigh the fruit. 300 g means 300 g."}
+  ]},
+  tough:{label:"Tough with tunnels inside", checks:[
+   {q:"Did you stir the batter until totally smooth?", cause:"Overmixed", why:"Muffin batter should look lumpy. Smooth batter means developed gluten, which makes tough muffins with air tunnels.", fix:"Fold about 10 times, stop while it still looks a bit rough."}
+  ]},
+  flat:{label:"Did not rise", checks:[
+   {q:"Is the baking powder old?", cause:"Tired raising agent", why:"Old powder makes weak gas.", fix:"Hot water fizz test before baking."},
+   {q:"Did the batter wait before baking?", cause:"Gas escaped early", why:"Raising agents start the moment they get wet.", fix:"Oven fully hot before you mix. Batter goes straight in."}
+  ]}
+ }}
+};
+
+const ISSUE_LINKS = {
+ "Dense/heavy":["cake","dense"],"Sunk in middle":["cake","sunken"],"Too dry":["cake","dry"],
+ "Did not rise":["cake","norise"],"Spread flat":["cookies","flat"],"Too hard":["cookies","hard"],
+ "Burnt":["cookies","burnt"],"Gummy inside":["muffins","gummy"],"Cakey not fudgy":["brownies","cakey"],
+ "Raw in middle":["brownies","raw"],"Tough/rubbery":["muffins","tough"]
+};
+
+/* ================= STORAGE ================= */
+const KEY = "anaam_bake_studio_v1";
+let DB = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {
+    profiles:[{id:"p1", name:"Anaam", emoji:"👩‍🍳", role:"Head Baker", pin:null}],
+    customRecipes:[], bakes:[]
+  };
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){ alert("Could not save. Storage may be full or blocked."); } }
+function uid(){ return "x" + Date.now().toString(36) + Math.floor(Math.random()*999); }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function faceHTML(p, px){
+  if(p && p.photo) return `<img class="avatar" src="${p.photo}" style="width:${px}px;height:${px}px" alt="">`;
+  return `<span style="font-size:${Math.round(px*0.85)}px;vertical-align:middle">${p?p.emoji:"?"}</span>`;
+}
+/* profile photos: picked from the device, shrunk small, stored only on this device */
+let PHOTO_TARGET = null;
+function pickPhoto(id){ PHOTO_TARGET = id; document.getElementById("photoFile").click(); }
+function photoChosen(input){
+  const f = input.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = e=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const size = 144, c = document.createElement("canvas");
+      c.width = size; c.height = size;
+      const ctx = c.getContext("2d");
+      const m = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width-m)/2, (img.height-m)/2, m, m, 0, 0, size, size);
+      const p = getProfile(PHOTO_TARGET);
+      if(p){ p.photo = c.toDataURL("image/jpeg", 0.82); save(); renderFamily(); }
+    };
+    img.src = e.target.result;
+  };
+  rd.readAsDataURL(f);
+  input.value = "";
+}
+function clearPhoto(id){
+  const p = getProfile(id);
+  if(p && confirm("Go back to the emoji face?")){ delete p.photo; save(); renderFamily(); }
+}
+function allRecipes(){ return RECIPES.concat(DB.customRecipes); }
+function getRecipe(id){ return allRecipes().find(r=>r.id===id); }
+function getProfile(id){ return DB.profiles.find(p=>p.id===id); }
+
+/* ================= SESSION / LOGIN ================= */
+let CURRENT = null;   // logged-in profile
+let TAB = "home";
+const $ = sel => document.querySelector(sel);
+
+function renderLogin(){
+  const g = $("#profileGrid");
+  g.innerHTML = DB.profiles.map(p=>
+    `<div class="profileTile" onclick="tapProfile('${p.id}')">
+       <span class="face">${faceHTML(p,46)}</span>
+       <span class="nm">${esc(p.name)}</span>
+       <span class="rl">${esc(p.role)}</span>
+     </div>`).join("") +
+    `<div class="profileTile" onclick="openAddProfile()">
+       <span class="face">➕</span><span class="nm">Add family</span><span class="rl">new member</span>
+     </div>`;
+}
+
+let pinBuffer = "", pinMode = "", pinProfile = null, pinFirst = "";
+function tapProfile(id){
+  pinProfile = getProfile(id);
+  pinBuffer = ""; pinFirst = "";
+  pinMode = pinProfile.pin ? "enter" : "create";
+  openPinModal();
+}
+function openPinModal(){
+  const title = pinMode==="enter" ? `Hi ${esc(pinProfile.name)}! Enter your PIN` :
+                pinMode==="create" ? `Welcome ${esc(pinProfile.name)}! Create a 4-digit PIN` :
+                `Type your new PIN again`;
+  showModal(`
+    <h2 style="text-align:center">${pinProfile.emoji} ${title}</h2>
+    <div class="pinDots" id="pinDots">${dots()}</div>
+    <div class="pinPad">
+      ${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pinKey(${n})">${n}</button>`).join("")}
+      <button onclick="closeModal()" style="font-size:14px">Cancel</button>
+      <button onclick="pinKey(0)">0</button>
+      <button onclick="pinBack()">⌫</button>
+    </div>`);
+}
+function dots(){ let h=""; for(let i=0;i<4;i++) h+=`<span class="${i<pinBuffer.length?'full':''}"></span>`; return h; }
+function pinKey(n){
+  if(pinBuffer.length>=4) return;
+  pinBuffer += n;
+  $("#pinDots").innerHTML = dots();
+  if(pinBuffer.length===4) setTimeout(pinDone, 180);
+}
+function pinBack(){ pinBuffer = pinBuffer.slice(0,-1); $("#pinDots").innerHTML = dots(); }
+function pinDone(){
+  if(pinMode==="enter"){
+    if(pinBuffer===pinProfile.pin){ closeModal(); login(pinProfile); }
+    else{ alert("Wrong PIN, try again!"); pinBuffer=""; $("#pinDots").innerHTML=dots(); }
+  } else if(pinMode==="create"){
+    pinFirst = pinBuffer; pinBuffer=""; pinMode="confirm"; openPinModal();
+  } else { // confirm
+    if(pinBuffer===pinFirst){
+      pinProfile.pin = pinBuffer; save(); closeModal(); login(pinProfile);
+    } else { alert("PINs did not match. Start again."); pinBuffer=""; pinMode="create"; openPinModal(); }
+  }
+}
+function login(p){
+  CURRENT = p;
+  $("#loginView").classList.add("hidden");
+  $("#appView").classList.remove("hidden");
+  $("#whoBox").innerHTML = `<span class="face">${faceHTML(p,26)}</span> ${esc(p.name)}
+    <button class="btn btn-ghost btn-small" onclick="logout()">Out</button>`;
+  go("home");
+}
+function logout(){
+  CURRENT = null;
+  $("#appView").classList.add("hidden");
+  $("#loginView").classList.remove("hidden");
+  renderLogin();
+}
+
+let newEmoji = "🧑‍🍳";
+function openAddProfile(){
+  newEmoji = "🧑‍🍳";
+  const faces = ["🧑‍🍳","👨","👩","👧","👦","👴","👵","🧕","👳","😺","🦄","🐻"];
+  showModal(`
+    <h2>Add a family member</h2>
+    <p style="font-size:13.5px;color:var(--brown-soft);margin:6px 0 12px">Family and invited friends only. They will create their own secret PIN on first entry.</p>
+    <div class="field"><label>Name</label><input id="npName" maxlength="20" placeholder="e.g. Baba"></div>
+    <div class="field"><label>Role</label><input id="npRole" maxlength="24" placeholder="e.g. Chief Taster"></div>
+    <div class="field"><label>Pick a face</label>
+      <div class="emojiPick">${faces.map(f=>`<button onclick="pickEmoji(this,'${f}')" class="${f===newEmoji?'sel':''}">${f}</button>`).join("")}</div>
+    </div>
+    <div class="rowBtns">
+      <button class="btn btn-soft" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="saveProfile()">Add</button>
+    </div>`);
+}
+function pickEmoji(btn, f){ newEmoji=f; document.querySelectorAll(".emojiPick button").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel"); }
+function saveProfile(){
+  const name = $("#npName").value.trim();
+  if(!name){ alert("A name is needed!"); return; }
+  const role = $("#npRole").value.trim() || "Taster";
+  DB.profiles.push({id:uid(), name, emoji:newEmoji, role, pin:null});
+  save(); closeModal(); renderLogin();
+}
+
+/* ================= MODAL ================= */
+function showModal(html){ $("#modalHost").innerHTML = `<div class="modalBack" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`; }
+function closeModal(){ $("#modalHost").innerHTML = ""; }
+
+/* ================= NAV ================= */
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>go(b.dataset.tab)));
+function go(tab, arg){
+  TAB = tab;
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
+  window.scrollTo(0,0);
+  if(tab==="home") renderHome();
+  else if(tab==="recipes") renderRecipes();
+  else if(tab==="bakes") renderBakes();
+  else if(tab==="doctor") renderDoctor(arg);
+  else if(tab==="family") renderFamily();
+}
+
+/* ================= HOME ================= */
+const TIPS = [
+ "Weigh everything. Grams never lie, cups always do.",
+ "Read the whole recipe before you start. Twice.",
+ "An oven thermometer costs little and fixes half of all baking problems.",
+ "Room temperature eggs mix better. Take them out 30 minutes early.",
+ "Write down what you changed. Future you will thank present you.",
+ "Cold dough, hot oven: the golden rule for cookies.",
+ "The oven light exists so the door can stay shut.",
+ "Salt makes sweet things taste sweeter. Never skip the pinch.",
+ "Cool cakes fully before icing, or watch the icing slide away.",
+ "A failed bake with notes teaches more than a lucky perfect one."
+];
+function renderHome(){
+  const myBakes = DB.bakes.filter(b=>b.bakerId===CURRENT.id);
+  const allStars = DB.bakes.flatMap(b=>b.reviews.map(r=>r.stars));
+  const avg = allStars.length ? (allStars.reduce((a,c)=>a+c,0)/allStars.length).toFixed(1) : "–";
+  const tip = TIPS[new Date().getDate() % TIPS.length];
+  const recent = DB.bakes.slice(-3).reverse();
+  $("#main").innerHTML = `
+    <div class="card" style="background:var(--pink)">
+      <h2>Salaam, ${esc(CURRENT.name)}! ${CURRENT.emoji}</h2>
+      <p style="margin-top:4px">What are we baking today?</p>
+      <div style="margin-top:12px"><button class="btn" onclick="go('recipes')">🥣 Start a bake</button></div>
+    </div>
+    <div class="factRow">
+      <div class="fact"><b>${DB.bakes.length}</b>family bakes</div>
+      <div class="fact"><b>${myBakes.length}</b>your bakes</div>
+      <div class="fact"><b>${avg} ⭐</b>average review</div>
+      <div class="fact"><b>${allRecipes().length}</b>recipes</div>
+    </div>
+    <div class="card"><h3>💡 Tip of the day</h3><p style="margin-top:6px;font-size:14.5px">${tip}</p></div>
+    <h3 style="margin:16px 0 10px">Latest bakes</h3>
+    ${recent.length ? recent.map(bakeCard).join("") :
+      `<div class="bigEmpty"><span class="em">🥣</span>No bakes yet. Pick a recipe and make history!</div>`}`;
+}
+
+/* ================= RECIPES ================= */
+let FILTER = "all";
+const DIET_LABELS = {all:"All", classic:"Classic", eggless:"Eggless", "gluten-free":"Gluten-Free", vegan:"Vegan", "lower-sugar":"Lower Sugar", mine:"Our Own"};
+function renderRecipes(){
+  const list = allRecipes().filter(r=>{
+    if(FILTER==="all") return true;
+    if(FILTER==="mine") return !!r.custom;
+    return r.diet.includes(FILTER);
+  });
+  $("#main").innerHTML = `
+    <div class="halalBanner">✅ Every recipe here is <b>halal</b>: alcohol-free vanilla, halal-certified chocolate, and never any gelatin.</div>
+    <div class="filterRow">${Object.keys(DIET_LABELS).map(k=>
+      `<button class="${FILTER===k?'active':''}" onclick="setFilter('${k}')">${DIET_LABELS[k]}</button>`).join("")}
+    </div>
+    ${list.length ? `<div class="grid2">` + list.map(r=>`
+      <div class="card recipeCard" onclick="openRecipe('${r.id}')">
+        <span class="em">${r.emoji}</span>
+        <div style="flex:1">
+          <h3>${esc(r.name)}</h3>
+          <div class="meta">${r.difficulty} · ${r.time} · ${r.kcal} kcal per serving</div>
+          <div>${r.diet.map(d=>`<span class="tag diet">${DIET_LABELS[d]||d}</span>`).join("")}<span class="tag halal">Halal ✅</span>${r.custom?'<span class="tag">Our recipe 💝</span>':''}</div>
+        </div>
+      </div>`).join("") + `</div>` : `<div class="bigEmpty"><span class="em">📖</span>Nothing in this category yet.</div>`}
+    <button class="btn btn-soft" style="width:100%;margin-top:14px" onclick="openAddRecipe()">➕ Add our own recipe</button>`;
+}
+function setFilter(f){ FILTER=f; renderRecipes(); }
+
+function openRecipe(id){
+  const r = getRecipe(id);
+  $("#main").innerHTML = `
+    <button class="btn btn-ghost btn-small" onclick="go('recipes')">← Back</button>
+    <div class="card" style="margin-top:12px">
+      <div style="text-align:center;font-size:56px">${r.emoji}</div>
+      <h2 style="text-align:center">${esc(r.name)}</h2>
+      <div style="text-align:center;margin-top:6px">${r.diet.map(d=>`<span class="tag diet">${DIET_LABELS[d]||d}</span>`).join("")}<span class="tag halal">Halal ✅</span></div>
+      <div class="factRow" style="justify-content:center">
+        <div class="fact"><b>${r.temp}</b>oven</div>
+        <div class="fact"><b>${r.time}</b>time</div>
+        <div class="fact"><b>${r.serves}</b>servings</div>
+        <div class="fact"><b>${r.kcal} kcal</b>per serving</div>
+      </div>
+      <h3 style="margin-top:10px">Ingredients (exact!)</h3>
+      <table class="ingTable">${r.ingredients.map(i=>`<tr><td>${esc(i[0])}</td><td>${esc(i[1])}</td></tr>`).join("")}</table>
+      <h3 style="margin-top:10px">Steps</h3>
+      <ol class="stepList">${r.steps.map((s,i)=>`<li><span class="num">${i+1}</span><span>${esc(s)}</span></li>`).join("")}</ol>
+      <p style="margin-top:12px;font-size:13.5px"><b>🕌 Halal note:</b> ${esc(r.halalNote)}</p>
+      <p style="margin-top:8px;font-size:13.5px"><b>💡 Tip:</b> ${esc(r.tip)}</p>
+      <div class="rowBtns">
+        <button class="btn" onclick="startBake('${r.id}')">🥣 Bake this now</button>
+        ${r.custom?`<button class="btn btn-soft" onclick="deleteRecipe('${r.id}')">🗑️</button>`:""}
+      </div>
+    </div>`;
+}
+function deleteRecipe(id){
+  if(!confirm("Delete this recipe forever?")) return;
+  DB.customRecipes = DB.customRecipes.filter(r=>r.id!==id);
+  save(); go("recipes");
+}
+
+function openAddRecipe(){
+  showModal(`
+    <h2>Add our own recipe 💝</h2>
+    <p style="font-size:13px;color:var(--brown-soft);margin:6px 0 12px">Be exact! Grams, temperatures and minutes. The Bake Doctor can only help with exact recipes.</p>
+    <div class="field"><label>Recipe name</label><input id="arName" maxlength="60" placeholder="Nani's Coconut Cake"></div>
+    <div class="field"><label>Emoji</label><input id="arEmoji" maxlength="4" value="🍰"></div>
+    <div class="field"><label>Type</label>
+      <select id="arDiet"><option value="classic">Classic</option><option value="eggless">Eggless</option><option value="gluten-free">Gluten-Free</option><option value="vegan">Vegan</option><option value="lower-sugar">Lower Sugar</option></select></div>
+    <div class="field"><label>Oven temperature</label><input id="arTemp" placeholder="180°C"></div>
+    <div class="field"><label>Bake time</label><input id="arTime" placeholder="30 min bake"></div>
+    <div class="field"><label>Servings</label><input id="arServes" type="number" min="1" value="12"></div>
+    <div class="field"><label>Calories per serving (rough guess is fine)</label><input id="arKcal" type="number" min="0" value="200"></div>
+    <div class="field"><label>Ingredients, one per line, like: Flour | 200 g</label><textarea id="arIng" rows="5" placeholder="Plain flour | 200 g&#10;Caster sugar | 150 g"></textarea></div>
+    <div class="field"><label>Steps, one per line</label><textarea id="arSteps" rows="6" placeholder="Heat the oven to 180°C...&#10;Beat butter and sugar 3 minutes..."></textarea></div>
+    <div class="rowBtns">
+      <button class="btn btn-soft" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="saveRecipe()">Save recipe</button>
+    </div>`);
+}
+function saveRecipe(){
+  const name = $("#arName").value.trim();
+  const ing = $("#arIng").value.split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{
+    const parts = l.split("|"); return [parts[0].trim(), (parts[1]||"").trim() || "to taste"];
+  });
+  const steps = $("#arSteps").value.split("\n").map(l=>l.trim()).filter(Boolean);
+  if(!name || ing.length<2 || steps.length<2){ alert("Please add a name, at least 2 ingredients and 2 steps."); return; }
+  DB.customRecipes.push({
+    id:uid(), custom:true, emoji:$("#arEmoji").value.trim()||"🍰", name,
+    diet:[$("#arDiet").value], difficulty:"Family recipe",
+    time:$("#arTime").value.trim()||"?", serves:parseInt($("#arServes").value)||12,
+    kcal:parseInt($("#arKcal").value)||0, temp:$("#arTemp").value.trim()||"?",
+    ingredients:ing, steps,
+    halalNote:"Family recipe. Keep vanilla alcohol-free and chocolate halal-certified.",
+    tip:"Added by " + CURRENT.name + " on " + new Date().toLocaleDateString()
+  });
+  save(); closeModal(); FILTER="mine"; renderRecipes();
+}
+
+/* ================= BAKE MODE ================= */
+let LIVE = null; // in-progress bake
+function startBake(recipeId){
+  const r = getRecipe(recipeId);
+  LIVE = {
+    id:uid(), recipeId:r.id, recipeName:r.name, recipeEmoji:r.emoji,
+    bakerId:CURRENT.id, date:new Date().toISOString(),
+    steps:r.steps.map(s=>({text:s, done:false, note:""})),
+    ovenNote:"", result:null, reviews:[]
+  };
+  renderLive();
+}
+function renderLive(){
+  const r = getRecipe(LIVE.recipeId);
+  $("#main").innerHTML = `
+    <div class="card" style="background:var(--butter)">
+      <h2>${LIVE.recipeEmoji} Baking: ${esc(LIVE.recipeName)}</h2>
+      <p style="font-size:13.5px;margin-top:4px">Tick each step as you do it. If you change ANYTHING, write it in the box under that step. This is what lets the Bake Doctor find problems later!</p>
+    </div>
+    <div class="card">
+      <h3>Ingredients checklist</h3>
+      <table class="ingTable">${r.ingredients.map(i=>`<tr><td>${esc(i[0])}</td><td>${esc(i[1])}</td></tr>`).join("")}</table>
+      <div class="field" style="margin-top:8px"><label>Oven notes (real temperature, shelf used...)</label>
+        <input id="ovenNote" value="${esc(LIVE.ovenNote)}" placeholder="e.g. oven said 180 but thermometer said 195" onchange="LIVE.ovenNote=this.value"></div>
+    </div>
+    ${LIVE.steps.map((s,i)=>`
+      <div class="bakeStep">
+        <label class="chk"><input type="checkbox" ${s.done?"checked":""} onchange="LIVE.steps[${i}].done=this.checked">
+          <span><b>Step ${i+1}.</b> ${esc(s.text)}</span></label>
+        <textarea placeholder="Changed anything? Write it here (e.g. only beat 1 minute, butter was melty...)" onchange="LIVE.steps[${i}].note=this.value">${esc(s.note)}</textarea>
+      </div>`).join("")}
+    <div class="rowBtns">
+      <button class="btn btn-soft" onclick="if(confirm('Stop and throw away this bake log?')){LIVE=null;go('recipes')}">Cancel</button>
+      <button class="btn" onclick="finishBake()">🎉 Finished baking!</button>
+    </div>`;
+}
+let RES = {rating:0, issues:[]};
+function finishBake(){
+  RES = {rating:0, issues:[]};
+  const issues = Object.keys(ISSUE_LINKS);
+  showModal(`
+    <h2>How did it turn out? ${LIVE.recipeEmoji}</h2>
+    <div class="field" style="margin-top:10px"><label>Your own honest score</label>
+      <div class="stars" id="resStars">${[1,2,3,4,5].map(n=>`<span data-n="${n}" onclick="setStars(${n})">⭐</span>`).join("")}</div></div>
+    <div class="field"><label>Any problems? Tap all that happened</label>
+      <div class="issueChips" id="issueChips">${issues.map(i=>`<button onclick="toggleIssue(this,'${i}')">${i}</button>`).join("")}</div></div>
+    <div class="field"><label>Notes about the result</label><textarea id="resNotes" rows="3" placeholder="Crispy edges, a bit dry in the middle..."></textarea></div>
+    <div class="rowBtns">
+      <button class="btn btn-soft" onclick="closeModal()">Back</button>
+      <button class="btn" onclick="saveBake()">Save my bake</button>
+    </div>`);
+}
+function setStars(n){ RES.rating=n; document.querySelectorAll("#resStars span").forEach(s=>s.classList.toggle("on", +s.dataset.n<=n)); }
+function toggleIssue(btn,i){
+  if(RES.issues.includes(i)) RES.issues = RES.issues.filter(x=>x!==i);
+  else RES.issues.push(i);
+  btn.classList.toggle("sel");
+}
+function saveBake(){
+  if(!RES.rating){ alert("Give it a star score first, even flops get stars for trying!"); return; }
+  LIVE.result = {rating:RES.rating, issues:RES.issues.slice(), notes:$("#resNotes").value.trim()};
+  DB.bakes.push(LIVE);
+  save(); closeModal();
+  const hadIssues = RES.issues.length>0;
+  const bakeId = LIVE.id;
+  LIVE = null;
+  if(hadIssues){
+    const first = DB.bakes.find(b=>b.id===bakeId).result.issues[0];
+    if(confirm("Saved! Something went wrong with this bake. Want the Bake Doctor to look at it now?")){
+      const link = ISSUE_LINKS[first];
+      go("doctor", {type:link[0], symptom:link[1], bakeId});
+      return;
+    }
+  }
+  go("bakes");
+}
+
+/* ================= BAKES & REVIEWS ================= */
+function bakeCard(b){
+  const baker = getProfile(b.bakerId);
+  const avg = b.reviews.length ? (b.reviews.reduce((a,r)=>a+r.stars,0)/b.reviews.length).toFixed(1) : null;
+  return `
+  <div class="card">
+    <div style="display:flex;gap:12px;align-items:center">
+      <span style="font-size:36px">${b.recipeEmoji}</span>
+      <div style="flex:1">
+        <h3>${esc(b.recipeName)}</h3>
+        <div style="font-size:13px;color:var(--brown-soft)">by ${baker?faceHTML(baker,18)+" "+esc(baker.name):"?"} · ${new Date(b.date).toLocaleDateString()}</div>
+        <div style="font-size:13.5px;margin-top:3px">Baker's own score: ${"⭐".repeat(b.result.rating)}
+          ${avg?` · Family: <b>${avg} ⭐</b> (${b.reviews.length})`:" · No family reviews yet"}</div>
+        ${b.result.issues.length?`<div style="margin-top:4px">${b.result.issues.map(i=>`<span class="tag">⚠️ ${i}</span>`).join("")}</div>`:""}
+      </div>
+    </div>
+    ${b.result.notes?`<p style="font-size:13.5px;margin-top:8px;color:var(--brown-soft)">"${esc(b.result.notes)}"</p>`:""}
+    ${b.reviews.map(rv=>{
+      const p = getProfile(rv.profileId);
+      return `<div class="reviewRow"><b>${p?faceHTML(p,18)+" "+esc(p.name):"?"}</b> ${"⭐".repeat(rv.stars)}<br>${esc(rv.comment)}</div>`;
+    }).join("")}
+    <div class="rowBtns">
+      ${b.bakerId!==CURRENT.id && !b.reviews.some(r=>r.profileId===CURRENT.id) ?
+        `<button class="btn btn-small" onclick="openReview('${b.id}')">⭐ I ate this, review it!</button>`:""}
+      ${b.result.issues.length?`<button class="btn btn-soft btn-small" onclick="doctorForBake('${b.id}')">🩺 Ask Bake Doctor</button>`:""}
+      ${b.bakerId===CURRENT.id?`<button class="btn btn-ghost btn-small" onclick="viewLog('${b.id}')">📋 My step log</button>`:""}
+    </div>
+  </div>`;
+}
+function renderBakes(){
+  const list = DB.bakes.slice().reverse();
+  $("#main").innerHTML = `
+    <h2 style="margin-bottom:12px">🧾 Family Bake Log</h2>
+    <p style="font-size:13.5px;color:var(--brown-soft);margin-bottom:14px">Only people who actually ATE the bake may review it. House rule. Be honest and be kind, both at once.</p>
+    ${list.length ? `<div class="grid2">` + list.map(bakeCard).join("") + `</div>` :
+      `<div class="bigEmpty"><span class="em">🧾</span>No bakes logged yet. The first one is the bravest!</div>`}`;
+}
+let REV = {stars:0, bakeId:null};
+function openReview(bakeId){
+  REV = {stars:0, bakeId};
+  const b = DB.bakes.find(x=>x.id===bakeId);
+  showModal(`
+    <h2>Review: ${esc(b.recipeName)} ${b.recipeEmoji}</h2>
+    <p style="font-size:13px;color:var(--brown-soft);margin:6px 0 10px">You are reviewing as ${CURRENT.emoji} ${esc(CURRENT.name)}. Honest AND kind!</p>
+    <div class="field"><label>Stars</label>
+      <div class="stars" id="revStars">${[1,2,3,4,5].map(n=>`<span data-n="${n}" onclick="setRevStars(${n})">⭐</span>`).join("")}</div></div>
+    <div class="field"><label>What did you think? Say one thing you loved and one thing to improve.</label>
+      <textarea id="revComment" rows="3" placeholder="Loved the crunchy edges! Middle was a tiny bit dry."></textarea></div>
+    <div class="rowBtns">
+      <button class="btn btn-soft" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="saveReview()">Post review</button>
+    </div>`);
+}
+function setRevStars(n){ REV.stars=n; document.querySelectorAll("#revStars span").forEach(s=>s.classList.toggle("on", +s.dataset.n<=n)); }
+function saveReview(){
+  if(!REV.stars){ alert("Pick some stars first!"); return; }
+  const c = $("#revComment").value.trim();
+  if(!c){ alert("Write a comment. Reviews without words do not help the baker."); return; }
+  const b = DB.bakes.find(x=>x.id===REV.bakeId);
+  b.reviews.push({profileId:CURRENT.id, stars:REV.stars, comment:c, date:new Date().toISOString()});
+  save(); closeModal(); renderBakes();
+}
+function viewLog(bakeId){
+  const b = DB.bakes.find(x=>x.id===bakeId);
+  showModal(`
+    <h2>📋 Step log: ${esc(b.recipeName)}</h2>
+    ${b.ovenNote?`<p style="font-size:13.5px;margin:8px 0"><b>Oven:</b> ${esc(b.ovenNote)}</p>`:""}
+    <ol class="stepList">${b.steps.map((s,i)=>`
+      <li><span class="num">${s.done?"✅":"❌"}</span>
+        <span>${esc(s.text)}${s.note?`<br><b style="color:var(--pink-deep)">Changed: ${esc(s.note)}</b>`:""}</span></li>`).join("")}
+    </ol>
+    <button class="btn" style="width:100%;margin-top:10px" onclick="closeModal()">Close</button>`);
+}
+function doctorForBake(bakeId){
+  const b = DB.bakes.find(x=>x.id===bakeId);
+  const link = ISSUE_LINKS[b.result.issues[0]];
+  if(link) go("doctor", {type:link[0], symptom:link[1], bakeId});
+  else go("doctor");
+}
+
+/* ================= BAKE DOCTOR ================= */
+let DOC = {type:null, symptom:null, answers:{}, bakeId:null};
+function renderDoctor(preset){
+  DOC = {type:null, symptom:null, answers:{}, bakeId:null};
+  if(preset){ DOC.type=preset.type; DOC.symptom=preset.symptom; DOC.bakeId=preset.bakeId||null; }
+  drawDoctor();
+}
+function drawDoctor(){
+  let html = `<h2 style="margin-bottom:6px">🩺 The Bake Doctor</h2>
+    <p style="font-size:13.5px;color:var(--brown-soft);margin-bottom:14px">Something came out wrong? Let us find out WHY, like real food scientists.</p>`;
+  // linked bake log
+  if(DOC.bakeId){
+    const b = DB.bakes.find(x=>x.id===DOC.bakeId);
+    if(b){
+      const changed = b.steps.filter(s=>s.note || !s.done);
+      html += `<div class="card" style="background:var(--butter)">
+        <h3>📋 Clues from your step log</h3>
+        ${b.ovenNote?`<p style="font-size:13.5px;margin-top:6px"><b>Oven:</b> ${esc(b.ovenNote)}</p>`:""}
+        ${changed.length ? `<p style="font-size:13.5px;margin-top:6px">Steps you skipped or changed:</p>
+          <ul style="margin:6px 0 0 18px;font-size:13.5px">${changed.map(s=>`<li>${s.done?"":"<b>SKIPPED:</b> "}${esc(s.text.slice(0,70))}${s.note?` → <b>${esc(s.note)}</b>`:""}</li>`).join("")}</ul>`
+        : `<p style="font-size:13.5px;margin-top:6px">Your log shows every step done exactly as written. So the suspect is probably the oven temperature, the ingredient freshness, or the measuring. Keep that in mind below!</p>`}
+      </div>`;
+    }
+  }
+  // step 1: type
+  html += `<div class="card"><h3>1. What did you bake?</h3><div class="filterRow" style="margin-top:10px">
+    ${Object.keys(DOCTOR).map(t=>`<button class="${DOC.type===t?'active':''}" onclick="docType('${t}')">${DOCTOR[t].emoji} ${DOCTOR[t].label}</button>`).join("")}
+  </div></div>`;
+  // step 2: symptom
+  if(DOC.type){
+    const sym = DOCTOR[DOC.type].symptoms;
+    html += `<div class="card"><h3>2. What went wrong?</h3><div class="filterRow" style="margin-top:10px">
+      ${Object.keys(sym).map(s=>`<button class="${DOC.symptom===s?'active':''}" onclick="docSymptom('${s}')">${sym[s].label}</button>`).join("")}
+    </div></div>`;
+  }
+  // step 3: questions
+  if(DOC.type && DOC.symptom){
+    const checks = DOCTOR[DOC.type].symptoms[DOC.symptom].checks;
+    html += `<div class="card"><h3>3. Answer the detective questions</h3>
+      ${checks.map((c,i)=>`
+        <div class="docQ"><span class="q">${c.q}</span>
+          <span class="ynBtns">
+            <button class="yes ${DOC.answers[i]===true?'sel':''}" onclick="docAns(${i},true)">Yes</button>
+            <button class="no ${DOC.answers[i]===false?'sel':''}" onclick="docAns(${i},false)">No</button>
+          </span></div>`).join("")}
+      <button class="btn" style="width:100%;margin-top:8px" onclick="docDiagnose()">🔍 Diagnose it!</button>
+    </div><div id="diagnosis"></div>`;
+  }
+  $("#main").innerHTML = html;
+}
+function docType(t){ DOC.type=t; DOC.symptom=null; DOC.answers={}; drawDoctor(); }
+function docSymptom(s){ DOC.symptom=s; DOC.answers={}; drawDoctor(); }
+function docAns(i,v){ DOC.answers[i]=v; drawDoctor(); }
+function docDiagnose(){
+  const checks = DOCTOR[DOC.type].symptoms[DOC.symptom].checks;
+  const yes = checks.filter((c,i)=>DOC.answers[i]===true);
+  const unknown = checks.filter((c,i)=>DOC.answers[i]===undefined);
+  let html = "";
+  if(yes.length){
+    html += `<h3 style="margin:14px 0 10px">🎯 Most likely culprit${yes.length>1?"s":""}:</h3>` +
+      yes.map(c=>causeCard(c)).join("");
+  }
+  if(!yes.length){
+    html += `<h3 style="margin:14px 0 10px">Hmm, you answered no to the usual suspects. Other possibilities:</h3>` +
+      checks.map(c=>causeCard(c)).join("") +
+      `<div class="card" style="background:var(--mint)"><b>Detective tip:</b> when no cause fits, the oven is usually lying about its temperature. An oven thermometer solves the mystery.</div>`;
+  } else if(unknown.length){
+    html += `<p style="font-size:13.5px;color:var(--brown-soft);margin-top:6px">You skipped ${unknown.length} question${unknown.length>1?"s":""}. Next bake, keep the step log carefully and you will be able to answer every one!</p>`;
+  }
+  html += `<div class="card" style="margin-top:12px"><b>🔬 The one-change rule:</b> real food scientists fix ONE thing at a time. Pick the top culprit, change only that, bake again, compare. That is how you learn what really matters.</div>`;
+  $("#diagnosis").innerHTML = html;
+  document.getElementById("diagnosis").scrollIntoView({behavior:"smooth"});
+}
+function causeCard(c){
+  return `<div class="causeCard">
+    <h3>${esc(c.cause)}</h3>
+    <div class="why"><b>Why this happens:</b> ${esc(c.why)}</div>
+    <div class="fix"><b>✅ Fix for next time:</b> ${esc(c.fix)}</div>
+  </div>`;
+}
+
+/* ================= FAMILY / SETTINGS ================= */
+function renderFamily(){
+  $("#main").innerHTML = `
+    <h2 style="margin-bottom:12px">👨‍👩‍👧 The Bake Studio Family</h2>
+    ${DB.profiles.map(p=>{
+      const bakes = DB.bakes.filter(b=>b.bakerId===p.id).length;
+      const reviews = DB.bakes.reduce((a,b)=>a+b.reviews.filter(r=>r.profileId===p.id).length,0);
+      return `<div class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <span>${faceHTML(p,52)}</span>
+        <div style="flex:1;min-width:140px"><h3>${esc(p.name)}</h3>
+          <div style="font-size:13px;color:var(--brown-soft)">${esc(p.role)} · ${bakes} bakes · ${reviews} reviews given</div></div>
+        ${p.id===CURRENT.id || CURRENT.id==="p1" ?
+          `<button class="btn btn-soft btn-small" onclick="pickPhoto('${p.id}')">📷 ${p.photo?"Change":"Add"} photo</button>`:""}
+        ${p.photo && (p.id===CURRENT.id || CURRENT.id==="p1") ?
+          `<button class="btn btn-ghost btn-small" onclick="clearPhoto('${p.id}')">✖️</button>`:""}
+        ${p.id!==CURRENT.id && DB.profiles.length>1 && CURRENT.id==="p1" ?
+          `<button class="btn btn-ghost btn-small" onclick="removeProfile('${p.id}')">Remove</button>`:""}
+      </div>`;}).join("")}
+    <input type="file" id="photoFile" accept="image/*" class="hidden" onchange="photoChosen(this)">
+    <button class="btn btn-soft" style="width:100%" onclick="openAddProfile();"> ➕ Add a family member</button>
+    <div class="card" style="margin-top:16px">
+      <h3>💾 Keep the data safe</h3>
+      <p style="font-size:13.5px;color:var(--brown-soft);margin:6px 0 10px">Everything lives on THIS device only. Download a backup sometimes, and load it if you move to a new device.</p>
+      <div class="rowBtns">
+        <button class="btn btn-small" onclick="exportData()">⬇️ Download backup</button>
+        <button class="btn btn-soft btn-small" onclick="document.getElementById('importFile').click()">⬆️ Load backup</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(this)">
+    </div>
+    <div class="card" style="background:var(--pink)">
+      <h3>🏠 House rules</h3>
+      <ol style="margin:8px 0 0 18px;font-size:14px;line-height:1.7">
+        <li>Only family and invited friends get a profile.</li>
+        <li>You may only review a bake you actually ate.</li>
+        <li>Every review says one thing you loved and one thing to improve.</li>
+        <li>Flops are not failures. A flop with notes is a science experiment.</li>
+        <li>The baker cleans the kitchen. Yes, really.</li>
+      </ol>
+    </div>`;
+}
+function removeProfile(id){
+  const p = getProfile(id);
+  if(!confirm(`Remove ${p.name}? Their reviews stay, but they cannot log in anymore.`)) return;
+  DB.profiles = DB.profiles.filter(x=>x.id!==id);
+  save(); renderFamily();
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "anaams-bake-studio-backup-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importData(input){
+  const f = input.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.profiles || !data.bakes) throw new Error("bad file");
+      if(confirm("Replace everything on this device with the backup?")){
+        DB = data; save(); alert("Backup loaded!"); logout();
+      }
+    }catch(err){ alert("That does not look like a Bake Studio backup file."); }
+  };
+  reader.readAsText(f);
+}
+
+/* ================= BOOT ================= */
+renderLogin();
+/* v1.1 — mobile and tablet optimized */
+</script>
+</body>
+</html>
