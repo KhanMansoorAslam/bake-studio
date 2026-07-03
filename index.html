@@ -131,14 +131,13 @@
   <div class="loginBox">
     <div id="stepEmail">
       <div class="field"><label>Your email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@family.com"></div>
-      <button class="btn" style="width:100%" id="sendCodeBtn" onclick="sendCode()">Email me a code 📨</button>
-      <p style="font-size:12.5px;color:var(--brown-soft);margin-top:10px">No passwords here! A 6-digit code goes to your email. Only family emails on Baba's list can get one.</p>
+      <button class="btn" style="width:100%" id="sendCodeBtn" onclick="sendCode()">Email me a sign-in link 📨</button>
+      <p style="font-size:12.5px;color:var(--brown-soft);margin-top:10px">No passwords here! A magic sign-in link goes to your email. Only family emails on the keeper's list can get one.</p>
     </div>
     <div id="stepCode" class="hidden">
-      <div class="field"><label>Type the 6-digit code from your email</label>
-        <input id="loginCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" style="text-align:center;font-size:24px;letter-spacing:6px"></div>
-      <button class="btn" style="width:100%" id="verifyBtn" onclick="verifyCode()">Come in! 🧁</button>
-      <p style="font-size:12.5px;color:var(--brown-soft);margin-top:10px">Check the spam folder if it hides. <a href="#" onclick="backToEmail();return false" style="color:var(--pink-deep)">Wrong email or need a new code?</a></p>
+      <div style="text-align:center;font-size:44px">📬</div>
+      <p style="font-size:15px;margin:10px 0;text-align:center"><b>Magic link sent!</b><br>Open your email and tap <b>Sign in</b>. The moment you do, this page lets you in all by itself.</p>
+      <p style="font-size:12.5px;color:var(--brown-soft);margin-top:10px;text-align:center">Check the spam folder if it hides.<br><a href="#" onclick="backToEmail();return false" style="color:var(--pink-deep)">Wrong email or need a new link?</a></p>
     </div>
   </div>
 </div>
@@ -164,8 +163,9 @@
 "use strict";
 
 /* ========= PASTE YOUR SUPABASE DETAILS HERE (Settings -> API) ========= */
-const SUPABASE_URL      = "PASTE_YOUR_PROJECT_URL_HERE";
-const SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";
+const SUPABASE_URL      = "https://bvgosgappwnzserrsfnk.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_M_M9Bvl6XXLCHHjoMu2o-A_kRxJU0EL";
+const APP_URL           = "https://khanmansooraslam.github.io/bake-studio/";
 /* ===================================================================== */
 
 /* ================= BUILT-IN RECIPES (all halal, exact grams) ================= */
@@ -310,41 +310,29 @@ async function boot(){
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const { data:{ session } } = await sb.auth.getSession();
   if(session) enter();
+  // when the magic link is tapped (even in another tab), come alive
+  sb.auth.onAuthStateChange((event, sess)=>{ if(sess && !ME) enter(); });
   $("#loginEmail").addEventListener("keydown", e=>{ if(e.key==="Enter") sendCode(); });
-  $("#loginCode").addEventListener("keydown", e=>{ if(e.key==="Enter") verifyCode(); });
 }
-let OTP_EMAIL = null;
 async function sendCode(){
   const email = $("#loginEmail").value.trim().toLowerCase();
   if(!email || !email.includes("@")){ alert("Type your full email first!"); return; }
   const btn = $("#sendCodeBtn"); btn.disabled = true; btn.textContent = "Sending...";
-  const { error } = await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:false } });
-  btn.disabled = false; btn.textContent = "Email me a code 📨";
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:false, emailRedirectTo: APP_URL } });
+  btn.disabled = false; btn.textContent = "Email me a sign-in link 📨";
   if(error){
     const msg = String(error.message||"");
     if(msg.toLowerCase().includes("signup")) alert("This email is not on the family list. Ask the keeper of the keys!");
-    else if(msg.toLowerCase().includes("rate")) alert("Too many codes requested. Wait a little while and try again.");
-    else alert("Could not send the code: " + msg);
+    else if(msg.toLowerCase().includes("rate")) alert("Too many links requested. Wait a little while and try again.");
+    else alert("Could not send the link: " + msg);
     return;
   }
-  OTP_EMAIL = email;
   $("#stepEmail").classList.add("hidden");
   $("#stepCode").classList.remove("hidden");
-  $("#loginCode").focus();
 }
 function backToEmail(){
   $("#stepCode").classList.add("hidden");
   $("#stepEmail").classList.remove("hidden");
-}
-async function verifyCode(){
-  const token = $("#loginCode").value.trim();
-  if(token.length < 6){ alert("Type all 6 digits!"); return; }
-  const btn = $("#verifyBtn"); btn.disabled = true; btn.textContent = "Checking...";
-  const { error } = await sb.auth.verifyOtp({ email: OTP_EMAIL, token, type: "email" });
-  btn.disabled = false; btn.textContent = "Come in! 🧁";
-  if(error){ alert("That code did not work. Check the digits, or ask for a fresh code."); return; }
-  $("#loginCode").value = "";
-  enter();
 }
 async function enter(){
   $("#loginView").classList.add("hidden");
